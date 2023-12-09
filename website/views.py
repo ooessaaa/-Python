@@ -9,6 +9,9 @@ from . import db2
 import json
 import string
 import requests
+from googletrans import Translator
+
+
 #Allows for all routes to be stored in this file
 views = Blueprint('views', __name__)
 
@@ -23,57 +26,50 @@ def home():
         "rain": "rain.png",
         "snow": "images.png"
   }
-  current_weather = "clear-day"
+  current_weather = ""
 
   if request.method =='POST':
     #Getting variables from start page that user entered 
-    temp1 = str(request.form['temperature'])
-    humidity = str(request.form['humidity'])
-    precip1 = str(request.form['precip'])
-    windspeed = str(request.form['ws'])
-    sealevelpressure = str(request.form['pressure'])
-    #sealevelpressure = request.form.get('pressure')
-
-    
-    if len(temp1) < 1:
+    if (len(request.form['temperature']) < 1) or (len(request.form['humidity']) < 1) or (len(request.form['precip']) < 1) or (len(request.form['ws']) < 1) or (len(request.form['pressure']) < 1):
       flash('No Value!', category='error')
     else:
-      new_temp = Weather(temp=temp1, user_id=current_user.id)
-      new_humidity = Weather(humid=humidity, user_id=current_user.id)
-      new_precip = Weather(precip=precip1, user_id=current_user.id)
-      new_windspeed = Weather(ws=windspeed, user_id=current_user.id)
-      new_pressure = Weather(pressure=sealevelpressure, user_id=current_user.id)
-      db.session.add(new_temp)
-      db.session.add(new_humidity)
-      db.session.add(new_precip)
-      db.session.add(new_windspeed)
-      db.session.add(new_pressure)
+      tempc = str(request.form['temperature'])
+      tempf = str((9/5)*int(request.form['temperature'])+32)
+      humidity = str(request.form['humidity'])
+      precip1 = str(request.form['precip'])
+      os = str(int(request.form['precip'])/25.4)
+      windspeed = str(request.form['ws'])
+      wind = str(int(request.form['ws'])*2.237)
+      sealevelpressure = str(request.form['pressure'])
+      press = str(int(request.form['pressure'])*(4/3))
+  
+  
+      #Puts variables into list of str 
+      x = [tempf, humidity, os, wind, press]
+      #Converts each item in the x list to of int  
+      y = [eval(i) for i in x]
+
+      #Make a call to function from model_prediction.py
+      #Make list y into a np.array for the model to understand 
+      #Will return the prediction 
+      encoded_predictions = make_prediction(np.array([y]))
+
+      #Decoder is used to output icon name instead of number 
+      decoder = ["clear-day", "cloudy", "partly-cloudy-day", "rain", "snow"]
+      decoder2 = ["ясный день", "облачно", "переменная облачность", "дождь", "снег"]
+      #Prediction number is changed from number to icon name
+      z = decoder[round(encoded_predictions[0])]
+      z2 = decoder2[round(encoded_predictions[0])]
+      current_weather = z
+      #Add to database
+      z1 = Weather(temp=tempf,humid=humidity, precip=precip1,ws=windspeed,pressure=sealevelpressure, result = z, user_id=current_user.id)
+    
+      db.session.add(z1)
       db.session.commit()
 
-  
-    #Puts variables into list of str 
-    x = [temp1, humidity, precip1, windspeed, sealevelpressure]
-    #Converts each item in the x list to of int  
-    y = [eval(i) for i in x]
-
-    #Make a call to function from model_prediction.py
-    #Make list y into a np.array for the model to understand 
-    #Will return the prediction 
-    encoded_predictions = make_prediction(np.array([y]))
-
-    #Decoder is used to output icon name instead of number 
-    decoder = ["clear-day", "cloudy", "partly-cloudy-day", "rain", "snow"]
-    #Prediction number is changed from number to icon name
-    z = decoder[round(encoded_predictions[0])]
-    current_weather = z
-    #Add to database
-    z1 = Weather(result = z, user_id=current_user.id)
-    db.session.add(z1)
-    db.session.commit()
-
-    #Use flash to put the prediction icon name on web page
-    flash("The Weather Looks Like: " + z)
-    # weather_images = weather_images.get(z, "по_умолчанию_если_не_найдено")
+      #Use flash to put the prediction icon name on web page
+      flash(("Температура:   " + tempc + "С","Влажность:   " + humidity + "%","Осадки:   " + precip1 + "мм","Скорость ветра:   " + windspeed + "м/с","Давление:   " + sealevelpressure + "мм.рт.ст", "Погода на данный момент:   " + z2), category='weather')
+      # weather_images = weather_images.get(z, "по_умолчанию_если_не_найдено")
   return render_template("home.html", user=current_user, weather_images=weather_images, current_weather=current_weather)
 
 @views.route('/weather')
@@ -82,12 +78,30 @@ def index_get():
 
     weather_data = []
 
+    weather_images = {
+        "clear-day": "Без названия (1).png",
+        "cloudy": "images (1).png",
+        "partly-cloudy-day": "pcloud.png",
+        "rain": "rain.png",
+        "snow": "images.png"
+  }
+    current_weather = "clear-day"
+
     for city in cities:
         r = get_weather_data(city.name)
+        translator = Translator()
+        translated = translator.translate(city.name, src='en', dest='ru')
+        city_name = translated.text
+        descript = translator.translate(str(r['weather'][0]['description']), src='en', dest='ru').text
+
+
         weather = {
-            'city' : city.name,
+            'city' : city_name,
             'temperature' : r['main']['temp'],
-            'description' : r['weather'][0]['description'],
+            'humidity': r['main']['humidity'],
+            'pressure': r['main']['pressure'],
+            'windspeed': r['wind']['speed'],
+            'description' : descript.lower(),
             'icon' : r['weather'][0]['icon'],
         }
         weather_data.append(weather)
@@ -99,8 +113,12 @@ def index_post():
     err_msg = ''
     new_city = request.form.get('city')
     print(new_city)
+    translator = Translator()
+    translated = translator.translate(new_city, src='ru', dest='en')
+    new_city = translated.text
     new_city = new_city.lower()
     new_city = string.capwords(new_city)
+
     if new_city:
         existing_city = City.query.filter_by(name=new_city).first()
        
@@ -113,24 +131,27 @@ def index_post():
                 db2.session.add(new_city_obj)
                 db2.session.commit()
             else:
-                err_msg = 'That is not a valid city!'
+                err_msg = 'Некорректное название города!'
         else:
-            err_msg = 'City already exists in the database!'
+            err_msg = 'Такой город уже есть!'
 
     if err_msg:
-        flash(err_msg, 'error')
+        flash(err_msg, category = 'error')
     else:
-        flash('City added successfully!', 'success')
+        flash('Город добавлен', category = 'success')
 
     return redirect(url_for('views.index_get'))
 
 @views.route('/weather/delete/<name>')
 def delete_city( name ):
+    translator = Translator()
+    translated = translator.translate(name, src='ru', dest='en')
+    name = translated.text
     city = City.query.filter_by(name=name).first()
     db2.session.delete(city)
     db2.session.commit()
 
-    flash(f'Successfully deleted { city.name }!', 'success')
+    flash(f'Успешно удален { city.name }!', category ='success')
     return redirect(url_for('views.index_get'))
 
 

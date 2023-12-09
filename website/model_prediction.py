@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 import pickle
+import os
 from flask import render_template
 
 def load_model(location):
@@ -18,7 +19,10 @@ def make_prediction(X: np.array) -> np.array:
     Input is 2d array and output is 1d array
     Loads model and returns prediction 
     """
-    MODEL_LOCATION = r"C:\Users\ACER\Desktop\WeatherPredictionSystem-main\website\model.pickle"
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    MODEL_LOCATION = os.path.join(current_dir, 'model.pickle')
+
+    # MODEL_LOCATION = r"C:\Users\ACER\Desktop\WeatherPredictionSystem-main\website\model.pickle"
     model = load_model(MODEL_LOCATION)
     return (model.predict(X))
 
