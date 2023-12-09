@@ -1,10 +1,14 @@
-from flask import Blueprint, render_template, request, flash, jsonify
+from flask import Blueprint, render_template, request, flash, jsonify,redirect,url_for
 from flask_login import login_required, current_user
 from .models import Weather
+from .models import City
 import numpy as np
 from .model_prediction import make_prediction
 from . import db
+from . import db2
 import json
+import string
+import requests
 #Allows for all routes to be stored in this file
 views = Blueprint('views', __name__)
 

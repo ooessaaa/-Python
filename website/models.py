@@ -1,4 +1,5 @@
 from . import db 
+from . import db2 
 from flask_login import UserMixin
 
 
@@ -23,3 +24,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
     weathers = db.relationship("Weather")
+
+class City(db2.Model) :
+    id = db2.Column(db2.Integer, primary_key=True)
+    name = db2.Column(db2.String(50),nullable=False)
