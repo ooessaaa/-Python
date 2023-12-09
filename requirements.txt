@@ -6,3 +6,13 @@ pandas==1.5.1
 pyodbc==4.0.34
 scikit-learn==1.0.2
 SQLAlchemy==1.4.42
+fonttools==4.44.0
+googletrans==4.0.0rc1
+Jinja2==3.1.2
+numpy==1.23.4
+pandas==1.5.1
+Pillow==10.1.0
+requests==2.31.0
+sklearn==0.0
+translate==3.6.1
+Werkzeug==2.2.2
