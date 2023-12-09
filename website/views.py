@@ -76,20 +76,72 @@ def home():
     # weather_images = weather_images.get(z, "по_умолчанию_если_не_найдено")
   return render_template("home.html", user=current_user, weather_images=weather_images, current_weather=current_weather)
 
-    # weather_images = {
-    # "clear-day": "Без названия (1).png",
-    # "cloudy": "images (1).png",
-    # "partly-cloudy-day": "pcloud.png",
-    # "rain": "rain.png",
-    # "snow": "images.png"
-    # }
+@views.route('/weather')
+def index_get():
+    cities = City.query.all()
 
-    # "clear-day": "C:\\Users\\ACER\\Desktop\\WeatherPredictionSystem-main\\website\\static\\image\\Без названия (1).png",
-    # "cloudy": "C:/Users/ACER/Desktop/WeatherPredictionSystem-main/website/images (1).png",
-    # "partly-cloudy-day": "C:/Users/ACER/Desktop/WeatherPredictionSystem-main/website/pcloud.png",
-    # "rain": "C:/Users/ACER/Desktop/WeatherPredictionSystem-main/website/rain.png",
-    # "snow": "C:/Users/ACER/Desktop/WeatherPredictionSystem-main/website/images.png"
-    #Выбираем соответствующее изображение на основе предсказанной погоды
-    # weather_image = weather_images.get(z, "по_умолчанию_если_не_найдено")
+    weather_data = []
 
-  # return render_template("home.html", user=current_user, weather_images=weather_images, current_weather=current_weather)
+    for city in cities:
+        r = get_weather_data(city.name)
+        weather = {
+            'city' : city.name,
+            'temperature' : r['main']['temp'],
+            'description' : r['weather'][0]['description'],
+            'icon' : r['weather'][0]['icon'],
+        }
+        weather_data.append(weather)
+
+    return render_template('weather.html', weather_data=weather_data)
+
+@views.route('/weather', methods=['POST'])
+def index_post():
+    err_msg = ''
+    new_city = request.form.get('city')
+    print(new_city)
+    new_city = new_city.lower()
+    new_city = string.capwords(new_city)
+    if new_city:
+        existing_city = City.query.filter_by(name=new_city).first()
+       
+        if not existing_city:
+            new_city_data = get_weather_data(new_city)
+            print(new_city_data)
+            if new_city_data['cod'] == 200:
+                new_city_obj = City(name=new_city)
+
+                db2.session.add(new_city_obj)
+                db2.session.commit()
+            else:
+                err_msg = 'That is not a valid city!'
+        else:
+            err_msg = 'City already exists in the database!'
+
+    if err_msg:
+        flash(err_msg, 'error')
+    else:
+        flash('City added successfully!', 'success')
+
+    return redirect(url_for('views.index_get'))
+
+@views.route('/weather/delete/<name>')
+def delete_city( name ):
+    city = City.query.filter_by(name=name).first()
+    db2.session.delete(city)
+    db2.session.commit()
+
+    flash(f'Successfully deleted { city.name }!', 'success')
+    return redirect(url_for('views.index_get'))
+
+
+def get_weather_data(city):
+    print(city)    
+    url = f'http://api.openweathermap.org/data/2.5/weather?q={city}&appid=b001f66f1c3ca44c9b559f0bea1640a1&units=metric'
+    # url = f"http://api.openweathermap.org/data/2.5/weather?appid=b001f66f1c3ca44c9b559f0bea1640a1&q={city}"
+    reque = requests.get(url, timeout=20)
+    print(city) 
+    if reque.status_code == 200:
+      r = reque.json()
+    else: print("fail")
+    return r
+    
