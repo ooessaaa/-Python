@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Weather Prediction System
 A website that uses machine learning to predict the weather.
 
@@ -80,3 +81,7 @@ If there are no errors, enable the service:
 ```
 sudo systemctl enable weather-prediction
 ```
+=======
+# -Python
+Это совместный проект с Баландиной Марией
+>>>>>>> aa8926b1b50f86cc952573dd260391b46faf65f5
