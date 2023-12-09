@@ -1,7 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
 <form method="POST">
-  <h3 align="center">Login</h3>
+  <h3 align="center"style="font-size: 30px;padding-top:20px">Вход</h3>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+  <div class="alert alert-success alert-dismissible fade show" >
+
+                {% for category, message in messages %}
+                    <div class="flash-message">
+                        <ul>
+                            {% if category == 'success' or category == 'error' %}
+                                <li>{{ message }}</li>
+                            {% endif %}
+                          </ul>
+                        </div>
+                {% endfor %}
+                <button type="button" class="close" data-dismiss="alert">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+            {% endif %}
+ {% endwith %}
+ 
   <div class="form-group">
     <label for="email">Адрес электронной почты</label>
     <input type="email" class="form-control" id="email" name="email" placeholder="Введите адрес электронной почты">

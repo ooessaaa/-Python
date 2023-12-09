@@ -2,43 +2,83 @@
 {% block title %}Home{% endblock %}
  {% block content %}
   <div class="container mt-4"></div>
-  <h1 align="center">Погода</h1>
+    <h1 align="center" style="font-size: 30px;">Погода</h1>
   <body>
-    {% if weather_images and current_weather in weather_images %}
-      <img src="{{ url_for('static', filename='images/' + weather_images[current_weather]) }}" alt="Weather Image" width="300" height="300">
-    {% else %}
-      <p>No image available for the current weather</p>
-    {% endif %}
     <br>
     <form method="POST">
-      {% for message in get_flashed_messages() %}
-        <p>{{ message }}</p>
-      {% endfor %}
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6" style="padding-left: 50px;">
           <div class="form-group">
-            <label for="temperature">Температура (Фаренгейт):</label>
-            <input type="number" step="any" class="form-control" id="temperature" name="temperature">
+            <label for="temperature">Температура (Градусы Цельсия):</label>
+            <input type="number" step="any" class="form-control" style="width: 400px" id="temperature" name="temperature">
           </div>
           <div class="form-group">
             <label for="humidity">Влажность (проценты):</label>
-            <input type="number" step="any" class="form-control" id="humidity" name="humidity">
+            <input type="number" step="any" class="form-control" style="width: 400px" id="humidity" name="humidity">
           </div>
           <div class="form-group">
-            <label for="precip">Осадки (дюймы):</label>
-            <input type="number" step="any" class="form-control" id="precip" name="precip">
+            <label for="precip">Осадки (мм):</label>
+            <input type="number" step="any" class="form-control" style="width: 400px" id="precip" name="precip">
           </div>
-        </div>
+          <div class="form-group">
+            <label for="ws">Скорость ветра (метры/секунды):</label>
+            <input type="number" step="any" class="form-control" style="width: 400px" id="ws" name="ws">
+          </div>
+          <div class="form-group">
+            <label for="pressure">Давление (мм.рт.ст):</label>
+            <input type="number" step="any" class="form-control" style="width: 400px" id="pressure" name="pressure">
+          </div>
+          <div style="padding-left: 100px;">
+          <button type="submit" class="alert alert-success " role="alert" style="width: 150px;">Ввести</button>
+          </div>
+      </div>
         <div class="col-md-6">
-          <div class="form-group">
-            <label for="ws">Скорость ветра (мили/час):</label>
-            <input type="number" step="any" class="form-control" id="ws" name="ws">
-          </div>
-          <div class="form-group">
-            <label for="pressure">Давление (миллибары):</label>
-            <input type="number" step="any" class="form-control" id="pressure" name="pressure">
-          </div>
-          <button type="submit" class="btn btn-primary">Ввести</button>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+         
+            {% if messages %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {% for category, message in messages %}
+                    <div class="flash-message">
+                        <ul>
+                            {% if category == 'success' or category == 'error' %}
+                                <li>{{ message }}</li>
+                            {% elif category == 'weather' %}
+                                <p>{{ message[0] }}</p>
+                                <p>{{ message[1] }}</p>
+                                <p>{{ message[2] }}</p>
+                                <p>{{ message[3] }}</p>
+                                <p>{{ message[4] }}</p>
+                                <br>
+                                <p style="font-weight: 500;">{{ message[5] }}</p>
+                            {% endif %}
+                        </ul>
+                    </div>
+                {% endfor %}
+                <button type="button" class="close" data-dismiss="alert">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                </div>
+            {% endif %}
+            
+        {% endwith %}
+
+            <!-- {% for message in get_flashed_messages() %}
+              <p>{{ message[0] }}</p>
+              <p>{{ message[1] }}</p>
+              <p>{{ message[2] }}</p>
+              <p>{{ message[3] }}</p>
+              <p>{{ message[4] }}</p>
+              <br>
+              <p style="font-weight: 500;">{{ message[5] }}</p>
+            {% endfor %} -->
+           
+          {% if weather_images and current_weather in weather_images %}
+             <div style="text-align: center; padding-top: 10px;">
+                <img src="{{ url_for('static', filename='images/' + weather_images[current_weather]) }}" alt="Weather Image" width="300" height="300"  >
+             </div>
+          {% else %}
+                <div style="width: 200px; height: 200px; color:aliceblue"></div>
+          {% endif %}
         </div>
       </div>
     </form>
