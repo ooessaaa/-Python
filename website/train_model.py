@@ -10,6 +10,12 @@ def train(dataset: pd.DataFrame) -> None:
     target = "icon"
     encoder = preprocessing.LabelEncoder()
     weather = encoder.fit_transform(data[target])
+    snow_label = encoder.transform(["snow"])[0]
+    pc_label = encoder.transform(["partly-cloudy-day"])[0]
+    cloudy_label = encoder.transform(["cloudy"])[0]
+    rain_label = encoder.transform(["rain"])[0]
+    cd_label = encoder.transform(["clear-day"])[0]
+
     X = np.array(data.drop(labels=target, axis=1))
     y = np.array(weather)
     print(X)
@@ -27,14 +33,13 @@ def train(dataset: pd.DataFrame) -> None:
         if acc > best_acc:
             best_acc = acc 
             best_model = model
-    
     f = open("model.pickle", "wb")
     pickle.dump(best_model, f)
     f.close()
 
 
 def main():
-    dataset = pd.read_csv("dataset.csv")
+    dataset = pd.read_csv("C:\\Users\\user\\-Python\\website\\dataset.csv")
     train(dataset)
 
 if __name__ == "__main__":

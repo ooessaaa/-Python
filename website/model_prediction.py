@@ -22,7 +22,6 @@ def make_prediction(X: np.array) -> np.array:
     current_dir = os.path.dirname(os.path.abspath(__file__))
     MODEL_LOCATION = os.path.join(current_dir, 'model.pickle')
 
-    # MODEL_LOCATION = r"C:\Users\ACER\Desktop\WeatherPredictionSystem-main\website\model.pickle"
     model = load_model(MODEL_LOCATION)
     return (model.predict(X))
 
