@@ -15,7 +15,7 @@ def create_app():
   #Encryption for cookies and web data
   app.config['SECRET_KEY'] = 'qwertyuiop'
   #Location of database
-  app.config['SQLALCHEMY_DATABASE_URI'] =f'sqlite:///{DB_NAME}'
+  app.config['SQLALCHEMY_DATABASE_URI'] =f'sqlite:///database.db'
   #Initialize database
   # Suppress deprecation warnings
   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
