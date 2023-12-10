@@ -1,4 +1,7 @@
 {
+    "rewrites": [
+        { "source": "/(.*)", "destination": "/website/views" }
+      ],
     "version": 2,
     "builds": [
       {
@@ -6,10 +9,4 @@
         "use": "@vercel/python"
       }
     ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "/app.py"
-      }
-    ]
   }
