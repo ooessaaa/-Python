@@ -1,4 +1,7 @@
 {
+    "rewrites": [
+        { "source": "/(.*)", "destination": "/website/views" }
+      ],
     "version": 2,
     "builds": [
       {
