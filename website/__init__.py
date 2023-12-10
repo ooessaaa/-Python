@@ -17,6 +17,8 @@ def create_app():
   #Location of database
   app.config['SQLALCHEMY_DATABASE_URI'] =f'sqlite:///{DB_NAME}'
   #Initialize database
+  # Suppress deprecation warnings
+  app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
   db.init_app(app)
 
 
@@ -25,7 +27,7 @@ def create_app():
   db2.init_app(app)
 
   from .views import views
-  from .auth import auth
+  from .auth import auth 
 
   #Register blueprints with no prefix
   app.register_blueprint(views, url_prefix='/')
