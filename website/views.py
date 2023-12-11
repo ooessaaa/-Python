@@ -11,8 +11,6 @@ import string
 import requests
 from googletrans import Translator
 
-
-#Allows for all routes to be stored in this file
 views = Blueprint('views', __name__)
 
 @views.route('/', methods=['GET','POST'])
@@ -29,7 +27,6 @@ def home():
   current_weather = ""
 
   if request.method =='POST':
-    #Getting variables from start page that user entered 
     if (len(request.form['temperature']) < 1) or (len(request.form['humidity']) < 1) or (len(request.form['precip']) < 1) or (len(request.form['ws']) < 1) or (len(request.form['pressure']) < 1):
       flash('No Value!', category='error')
     else:
@@ -42,34 +39,24 @@ def home():
       wind = str(int(request.form['ws'])*2.237)
       sealevelpressure = str(request.form['pressure'])
       press = str(int(request.form['pressure'])*(4/3))
-  
-  
-      #Puts variables into list of str 
       x = [tempf, humidity, os, wind, press]
-      #Converts each item in the x list to of int  
       y = [eval(i) for i in x]
 
-      #Make a call to function from model_prediction.py
-      #Make list y into a np.array for the model to understand 
-      #Will return the prediction 
       encoded_predictions = make_prediction(np.array([y]))
-
-      #Decoder is used to output icon name instead of number 
+ 
       decoder = ["clear-day", "cloudy", "partly-cloudy-day", "rain", "snow"]
       decoder2 = ["ясный день", "облачно", "переменная облачность", "дождь", "снег"]
-      #Prediction number is changed from number to icon name
       z = decoder[round(encoded_predictions[0])]
       z2 = decoder2[round(encoded_predictions[0])]
       current_weather = z
-      #Add to database
       z1 = Weather(temp=tempf,humid=humidity, precip=precip1,ws=windspeed,pressure=sealevelpressure, result = z, user_id=current_user.id)
     
       db.session.add(z1)
       db.session.commit()
 
-      #Use flash to put the prediction icon name on web page
+     
       flash(("Температура:   " + tempc + "С","Влажность:   " + humidity + "%","Осадки:   " + precip1 + "мм","Скорость ветра:   " + windspeed + "м/с","Давление:   " + sealevelpressure + "мм.рт.ст", "Погода на данный момент:   " + z2), category='weather')
-      # weather_images = weather_images.get(z, "по_умолчанию_если_не_найдено")
+    
   return render_template("home.html", user=current_user, weather_images=weather_images, current_weather=current_weather)
 
 @views.route('/weather')
