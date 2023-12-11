@@ -1,24 +1,14 @@
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
 import pickle
 import os
-from flask import render_template
 
 def load_model(location):
-    """
-    input is a string to file location of the model
-    output is the model
-    """
     f = open(location, "rb")
     model = pickle.load(f)
     f.close()
     return model
 
 def make_prediction(X: np.array) -> np.array:
-    """
-    Input is 2d array and output is 1d array
-    Loads model and returns prediction 
-    """
     current_dir = os.path.dirname(os.path.abspath(__file__))
     MODEL_LOCATION = os.path.join(current_dir, 'model.pickle')
 
@@ -27,7 +17,6 @@ def make_prediction(X: np.array) -> np.array:
 
 
 def main():
-    #Base prediction to check if correct prediction was made 
     decoder = ["clear-day", "cloudy", "partly-cloudy-day", "rain", "snow"]
     temp = [32, 70]
     humidity = [80, 60]

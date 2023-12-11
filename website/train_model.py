@@ -18,8 +18,8 @@ def train(dataset: pd.DataFrame) -> None:
 
     X = np.array(data.drop(labels=target, axis=1))
     y = np.array(weather)
-    print(X)
-    print(y)
+    # print(X)
+    # print(y)
 
     best_acc = 0
     best_model = None

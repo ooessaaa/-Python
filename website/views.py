@@ -103,6 +103,7 @@ def index_get():
     return render_template('weather.html', weather_data=weather_data)
 
 @views.route('/weather', methods=['POST'])
+@login_required
 def index_post():
     err_msg = ''
     new_city = request.form.get('city')
