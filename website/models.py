@@ -2,8 +2,6 @@ from . import db
 from . import db2 
 from flask_login import UserMixin
 
-
-#Setup weather model
 class Weather(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   temp = db.Column(db.Float)
@@ -15,8 +13,6 @@ class Weather(db.Model):
   #User stored weather
   user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-
-#Setup user model for database
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     #Create email where unique is true so no two users have same email 
